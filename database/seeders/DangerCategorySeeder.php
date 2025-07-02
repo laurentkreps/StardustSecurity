@@ -1,0 +1,350 @@
+<?php
+// database/seeders/DangerCategoriesSeeder.php
+namespace Database\Seeders;
+
+use App\Models\DangerCategory;
+use Illuminate\Database\Seeder;
+
+class DangerCategoriesSeeder extends Seeder
+{
+    public function run()
+    {
+        $dangerCategories = [
+            // EN 1176 - Équipements d'aires de jeux
+            [
+                'code'                 => '1.1',
+                'title'                => 'Espaces de coincement pour la tête et le cou',
+                'description'          => 'Ouvertures pouvant piéger la tête ou le cou d\'un enfant',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 1176-1 Section 4.2.3',
+                'typical_examples'     => 'Écartements entre barreaux, ouvertures dans les structures',
+                'default_measures'     => ['Vérifier que toutes les ouvertures sont < 60mm ou > 230mm', 'Installer des barrières de protection'],
+            ],
+            [
+                'code'                 => '1.2',
+                'title'                => 'Espaces de coincement pour les doigts',
+                'description'          => 'Ouvertures pouvant piéger les doigts d\'un enfant',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 1176-1 Section 4.2.4',
+                'typical_examples'     => 'Fentes, trous, jointures mobiles',
+                'default_measures'     => ['Vérifier que les ouvertures sont < 8mm ou > 25mm', 'Installer des protections'],
+            ],
+            [
+                'code'                 => '1.3',
+                'title'                => 'Espaces de coincement pour les pieds et les jambes',
+                'description'          => 'Ouvertures pouvant piéger les pieds ou jambes',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 1176-1 Section 4.2.5',
+                'typical_examples'     => 'Ouvertures dans les plateformes, marches d\'escalier',
+                'default_measures'     => ['Vérifier les dimensions des ouvertures', 'Installer des grilles de protection'],
+            ],
+            [
+                'code'                 => '1.4',
+                'title'                => 'Espaces de coincement pour les vêtements',
+                'description'          => 'Éléments pouvant accrocher ou coincer les vêtements',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 1176-1 Section 4.2.6',
+                'typical_examples'     => 'Saillies, crochets, éléments pointus',
+                'default_measures'     => ['Éliminer les saillies dangereuses', 'Arrondir les angles vifs'],
+            ],
+            [
+                'code'                 => '1.5',
+                'title'                => 'Chute de hauteur',
+                'description'          => 'Risque de chute depuis une hauteur dangereuse',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 1176-1 Section 4.2.7',
+                'typical_examples'     => 'Plateformes élevées, structures d\'escalade',
+                'default_measures'     => ['Installer des barrières de protection', 'Vérifier la hauteur libre de chute'],
+            ],
+            [
+                'code'                 => '1.6',
+                'title'                => 'Impact avec des équipements',
+                'description'          => 'Risque de collision avec des parties fixes ou mobiles',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 1176-1 Section 4.2.8',
+                'typical_examples'     => 'Balançoires, éléments oscillants',
+                'default_measures'     => ['Maintenir des zones de sécurité', 'Installer des protections'],
+            ],
+            [
+                'code'                 => '1.7',
+                'title'                => 'Surfaces et matériaux',
+                'description'          => 'Propriétés dangereuses des surfaces et matériaux',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 1176-1 Section 4.2.9',
+                'typical_examples'     => 'Surfaces glissantes, matériaux toxiques, températures excessives',
+                'default_measures'     => ['Utiliser des matériaux antidérapants', 'Vérifier la non-toxicité'],
+            ],
+
+            // EN 1177 - Sols de sécurité
+            [
+                'code'                 => '2.1',
+                'title'                => 'Absorption des chocs insuffisante',
+                'description'          => 'Sol ne permettant pas d\'absorber correctement les chocs en cas de chute',
+                'applies_to'           => 'playground',
+                'regulation_reference' => 'EN 1177 Section 4',
+                'typical_examples'     => 'Sol dur, revêtement inadéquat, épaisseur insuffisante',
+                'default_measures'     => ['Installer un revêtement amortissant', 'Vérifier l\'épaisseur selon la hauteur de chute'],
+            ],
+            [
+                'code'                 => '2.2',
+                'title'                => 'Dégradation du revêtement',
+                'description'          => 'Usure, déplacement ou dégradation du sol amortissant',
+                'applies_to'           => 'playground',
+                'regulation_reference' => 'EN 1177 Section 5',
+                'typical_examples'     => 'Tassement, dispersion, formation de trous',
+                'default_measures'     => ['Entretien régulier', 'Remplacement périodique du matériau'],
+            ],
+            [
+                'code'                 => '2.3',
+                'title'                => 'Contamination du sol',
+                'description'          => 'Présence de corps étrangers ou contaminants dans le revêtement',
+                'applies_to'           => 'playground',
+                'regulation_reference' => 'EN 1177 Section 6',
+                'typical_examples'     => 'Débris, verre, déjections animales, végétation',
+                'default_measures'     => ['Nettoyage régulier', 'Contrôle visuel quotidien'],
+            ],
+
+            // EN 13814 - Manèges et attractions
+            [
+                'code'                 => '3.1',
+                'title'                => 'Défaillance structurelle',
+                'description'          => 'Risque de rupture ou déformation de la structure porteuse',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 13814-1 Section 4',
+                'typical_examples'     => 'Fatigue des matériaux, corrosion, surcharge',
+                'default_measures'     => ['Contrôles structurels réguliers', 'Respect des charges limites'],
+            ],
+            [
+                'code'                 => '3.2',
+                'title'                => 'Dysfonctionnement mécanique',
+                'description'          => 'Panne ou défaillance des systèmes mécaniques',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 13814-1 Section 5',
+                'typical_examples'     => 'Usure des roulements, rupture de transmission, blocage',
+                'default_measures'     => ['Maintenance préventive', 'Lubrification régulière'],
+            ],
+            [
+                'code'                 => '3.3',
+                'title'                => 'Défaillance du système de freinage',
+                'description'          => 'Incapacité à arrêter l\'attraction en sécurité',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 13814-1 Section 6',
+                'typical_examples'     => 'Freins défaillants, distance d\'arrêt excessive',
+                'default_measures'     => ['Tests de freinage réguliers', 'Maintenance des systèmes de freinage'],
+            ],
+            [
+                'code'                 => '3.4',
+                'title'                => 'Défaillance des systèmes de retenue',
+                'description'          => 'Mauvais fonctionnement des dispositifs de sécurité passagers',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 13814-1 Section 7',
+                'typical_examples'     => 'Harnais défaillants, verrouillage insuffisant',
+                'default_measures'     => ['Contrôle quotidien des harnais', 'Test des systèmes de verrouillage'],
+            ],
+            [
+                'code'                 => '3.5',
+                'title'                => 'Conditions météorologiques',
+                'description'          => 'Exploitation dans des conditions météo dangereuses',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 13814-2 Section 8',
+                'typical_examples'     => 'Vent fort, pluie, gel, foudre',
+                'default_measures'     => ['Surveillance météorologique', 'Procédures d\'arrêt d\'urgence'],
+            ],
+            [
+                'code'                 => '3.6',
+                'title'                => 'Erreur d\'exploitation',
+                'description'          => 'Mauvaise utilisation ou erreur de l\'opérateur',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 13814-2 Section 9',
+                'typical_examples'     => 'Démarrage prématuré, non-respect des consignes',
+                'default_measures'     => ['Formation des opérateurs', 'Procédures d\'exploitation claires'],
+            ],
+
+            // EN 60335 - Sécurité électrique
+            [
+                'code'                 => '4.1',
+                'title'                => 'Électrocution',
+                'description'          => 'Contact avec des parties sous tension',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 60335-1 Section 8',
+                'typical_examples'     => 'Isolation défaillante, boîtiers ouverts, câbles endommagés',
+                'default_measures'     => ['Vérification de l\'isolation', 'Protection par disjoncteur différentiel'],
+            ],
+            [
+                'code'                 => '4.2',
+                'title'                => 'Surchauffe',
+                'description'          => 'Échauffement excessif pouvant causer un incendie',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 60335-1 Section 11',
+                'typical_examples'     => 'Surcharge, ventilation insuffisante, composants défaillants',
+                'default_measures'     => ['Contrôle thermique', 'Ventilation adéquate'],
+            ],
+            [
+                'code'                 => '4.3',
+                'title'                => 'Court-circuit',
+                'description'          => 'Contact entre conducteurs de polarités différentes',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 60335-1 Section 19',
+                'typical_examples'     => 'Câbles endommagés, eau dans les boîtiers',
+                'default_measures'     => ['Protection IP adéquate', 'Contrôle des câblages'],
+            ],
+            [
+                'code'                 => '4.4',
+                'title'                => 'Défaut de mise à la terre',
+                'description'          => 'Absence ou défaillance de la liaison équipotentielle',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 60335-1 Section 27',
+                'typical_examples'     => 'Conducteur de terre interrompu, résistance excessive',
+                'default_measures'     => ['Test de continuité de terre', 'Vérification des connexions'],
+            ],
+            [
+                'code'                 => '4.5',
+                'title'                => 'Perturbations électromagnétiques',
+                'description'          => 'Émissions ou susceptibilité aux interférences électromagnétiques',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 60335-1 Section 15',
+                'typical_examples'     => 'Dysfonctionnement des systèmes de contrôle',
+                'default_measures'     => ['Blindage électromagnétique', 'Filtrage des signaux'],
+            ],
+
+            // Dangers généraux des aires de jeux
+            [
+                'code'                 => '5.1',
+                'title'                => 'Accès non autorisé',
+                'description'          => 'Utilisation de l\'aire de jeux en dehors des heures ou par des personnes non autorisées',
+                'applies_to'           => 'playground',
+                'regulation_reference' => 'AR 28 mars 2001 Article 6',
+                'typical_examples'     => 'Absence de clôture, éclairage insuffisant',
+                'default_measures'     => ['Installation de clôtures', 'Signalisation des horaires'],
+            ],
+            [
+                'code'                 => '5.2',
+                'title'                => 'Surpopulation',
+                'description'          => 'Nombre d\'utilisateurs dépassant la capacité sécuritaire',
+                'applies_to'           => 'playground',
+                'regulation_reference' => 'AR 28 mars 2001 Article 7',
+                'typical_examples'     => 'Trop d\'enfants simultanément, conflits d\'usage',
+                'default_measures'     => ['Définir une capacité maximale', 'Surveillance'],
+            ],
+            [
+                'code'                 => '5.3',
+                'title'                => 'Usage inapproprié',
+                'description'          => 'Utilisation des équipements non conforme à leur destination',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'AR 28 mars 2001 Article 8',
+                'typical_examples'     => 'Enfants trop jeunes/âgés, usage détourné',
+                'default_measures'     => ['Signalisation des tranches d\'âge', 'Information des utilisateurs'],
+            ],
+            [
+                'code'                 => '5.4',
+                'title'                => 'Maintenance insuffisante',
+                'description'          => 'Défaut d\'entretien ou de maintenance préventive',
+                'applies_to'           => 'playground',
+                'regulation_reference' => 'AR 28 mars 2001 Article 9',
+                'typical_examples'     => 'Usure non détectée, manque de lubrification',
+                'default_measures'     => ['Programme de maintenance préventive', 'Inspections régulières'],
+            ],
+            [
+                'code'                 => '5.5',
+                'title'                => 'Vandalisme',
+                'description'          => 'Dégradations volontaires des équipements',
+                'applies_to'           => 'playground',
+                'regulation_reference' => 'AR 28 mars 2001 Article 10',
+                'typical_examples'     => 'Équipements cassés, graffitis, incendie volontaire',
+                'default_measures'     => ['Surveillance', 'Matériaux résistants', 'Éclairage dissuasif'],
+            ],
+
+            // Dangers environnementaux
+            [
+                'code'                 => '6.1',
+                'title'                => 'Conditions météorologiques extrêmes',
+                'description'          => 'Conditions climatiques rendant l\'usage dangereux',
+                'applies_to'           => 'playground',
+                'regulation_reference' => 'EN 1176-7 Section 4.4',
+                'typical_examples'     => 'Vent fort, verglas, canicule, orage',
+                'default_measures'     => ['Surveillance météorologique', 'Fermeture temporaire si nécessaire'],
+            ],
+            [
+                'code'                 => '6.2',
+                'title'                => 'Végétation dangereuse',
+                'description'          => 'Présence de plantes toxiques ou d\'obstacles végétaux',
+                'applies_to'           => 'playground',
+                'regulation_reference' => 'EN 1176-7 Section 4.5',
+                'typical_examples'     => 'Plantes vénéneuses, branches basses, racines affleurantes',
+                'default_measures'     => ['Élimination des plantes dangereuses', 'Élagage régulier'],
+            ],
+            [
+                'code'                 => '6.3',
+                'title'                => 'Présence d\'animaux',
+                'description'          => 'Risques liés à la présence d\'animaux domestiques ou sauvages',
+                'applies_to'           => 'playground',
+                'regulation_reference' => 'EN 1176-7 Section 4.6',
+                'typical_examples'     => 'Chiens non tenus en laisse, déjections, nids d\'insectes',
+                'default_measures'     => ['Réglementation sur les animaux', 'Nettoyage régulier'],
+            ],
+            [
+                'code'                 => '6.4',
+                'title'                => 'Pollution sonore',
+                'description'          => 'Nuisances sonores pouvant affecter la sécurité',
+                'applies_to'           => 'playground',
+                'regulation_reference' => 'EN 1176-7 Section 4.7',
+                'typical_examples'     => 'Proximité de routes, équipements bruyants',
+                'default_measures'     => ['Écrans acoustiques', 'Limitation des niveaux sonores'],
+            ],
+
+            // Dangers spécifiques par type d'équipement
+            [
+                'code'                 => '7.1',
+                'title'                => 'Balançoires - Zone de balancement',
+                'description'          => 'Collision dans la zone de balancement des balançoires',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 1176-2 Section 4.2',
+                'typical_examples'     => 'Enfants courant devant une balançoire',
+                'default_measures'     => ['Délimitation claire de la zone', 'Signalisation'],
+            ],
+            [
+                'code'                 => '7.2',
+                'title'                => 'Toboggans - Accès et sortie',
+                'description'          => 'Dangers liés à l\'accès et à la sortie des toboggans',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 1176-3 Section 4.2',
+                'typical_examples'     => 'Montée par la glissière, attroupement en bas',
+                'default_measures'     => ['Conception appropriée', 'Zone libre en sortie'],
+            ],
+            [
+                'code'                 => '7.3',
+                'title'                => 'Tyroliennes - Collision',
+                'description'          => 'Risque de collision avec la structure ou d\'autres utilisateurs',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 1176-4 Section 4.2',
+                'typical_examples'     => 'Collision en fin de parcours, avec des spectateurs',
+                'default_measures'     => ['Système de freinage', 'Zone libre de dégagement'],
+            ],
+            [
+                'code'                 => '7.4',
+                'title'                => 'Carrousels - Éjection',
+                'description'          => 'Risque d\'éjection des utilisateurs du carrousel',
+                'applies_to'           => 'equipment',
+                'regulation_reference' => 'EN 1176-5 Section 4.2',
+                'typical_examples'     => 'Vitesse excessive, mauvaise prise',
+                'default_measures'     => ['Limitation de vitesse', 'Systèmes de retenue appropriés'],
+            ],
+        ];
+
+        foreach ($dangerCategories as $index => $category) {
+            DangerCategory::create([
+                'code'                 => $category['code'],
+                'title'                => $category['title'],
+                'description'          => $category['description'],
+                'applies_to'           => $category['applies_to'],
+                'is_active'            => true,
+                'sort_order'           => $index + 1,
+                'regulation_reference' => $category['regulation_reference'],
+                'typical_examples'     => $category['typical_examples'],
+                'default_measures'     => $category['default_measures'],
+            ]);
+        }
+
+        $this->command->info('Seeded ' . count($dangerCategories) . ' danger categories covering EN 1176, EN 1177, EN 13814, and EN 60335 standards.');
+    }
+}

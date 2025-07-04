@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Route;
 // Routes d'authentification (Breeze/Jetstream)
 require __DIR__ . '/auth.php';
 
+Route::get('/home', function () {
+    return redirect()->route('dashboard');
+})->name('home');
+
 Route::middleware(['auth', 'verified'])->group(function () {
     // =============================================================================
     // TABLEAU DE BORD PRINCIPAL

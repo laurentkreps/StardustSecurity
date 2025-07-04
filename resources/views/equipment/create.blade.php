@@ -1,397 +1,308 @@
-{{-- resources/views/equipment/show.blade.php --}}
+{{-- resources/views/equipment/create.blade.php --}}
 @extends('layouts.app')
 
-@section('title', $equipment->reference_code)
+@section('title', 'Nouvel équipement')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
     <!-- En-tête -->
     <div class="mb-8">
-        <div class="flex justify-between items-start">
-            <div>
-                <div class="flex items-center gap-2 mb-2">
-                    <a href="{{ route('equipment.index') }}" class="text-gray-500 hover:text-gray-700">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-                        </svg>
-                    </a>
-                    <h1 class="text-3xl font-bold text-gray-900">{{ $equipment->reference_code }}</h1>
-                    <span class="px-3 py-1 text-sm font-medium rounded-full
-                        {{ $equipment->equipment_category === 'playground_equipment' ? 'bg-blue-100 text-blue-800' :
-                           ($equipment->equipment_category === 'amusement_ride' ? 'bg-purple-100 text-purple-800' :
-                           ($equipment->equipment_category === 'electrical_system' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800')) }}">
-                        {{ $equipment->equipment_category_label }}
-                    </span>
-                </div>
-                <p class="text-gray-600">{{ $equipment->equipment_type }}</p>
-                <p class="text-sm text-gray-500">{{ $equipment->playground->name }} - {{ $equipment->playground->city }}</p>
-            </div>
-
-            <div class="flex gap-2">
-                @if($equipment->equipment_category === 'amusement_ride')
-                    <a href="{{ route('inspections.create.equipment', $equipment) }}"
-                       class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        Inspection EN 13814
-                    </a>
-                @endif
-                @if($equipment->equipment_category === 'electrical_system')
-                    <a href="{{ route('electrical-tests.create.equipment', $equipment) }}"
-                       class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                        </svg>
-                        Test EN 60335
-                    </a>
-                @endif
-                <a href="{{ route('risk-analysis.equipment', $equipment) }}"
-                   class="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                    </svg>
-                    Analyse de risques
-                </a>
-                <a href="{{ route('equipment.edit', $equipment) }}"
-                   class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                    </svg>
-                    Modifier
-                </a>
-            </div>
+        <div class="flex items-center gap-2 mb-2">
+            <a href="{{ route('equipment.index') }}" class="text-gray-500 hover:text-gray-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </a>
+            <h1 class="text-3xl font-bold text-gray-900">Nouvel équipement</h1>
         </div>
+        <p class="text-gray-600">Ajout d'un équipement multi-normes (EN 1176, EN 13814, EN 60335)</p>
     </div>
 
-    <!-- Statut de conformité -->
-    @if(isset($complianceStatus))
-        <div class="mb-6 p-4 rounded-lg {{ $complianceStatus['overall'] ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200' }}">
-            <div class="flex items-center gap-2">
-                @if($complianceStatus['overall'])
-                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    <h3 class="text-lg font-medium text-green-900">Équipement conforme</h3>
-                @else
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
-                    </svg>
-                    <h3 class="text-lg font-medium text-red-900">Non-conformités détectées</h3>
-                @endif
-            </div>
-            @if(count($complianceStatus['issues']) > 0)
-                <ul class="mt-2 text-sm {{ $complianceStatus['overall'] ? 'text-green-800' : 'text-red-800' }}">
-                    @foreach($complianceStatus['issues'] as $issue)
-                        <li>• {{ $issue }}</li>
-                    @endforeach
-                </ul>
-            @endif
-        </div>
-    @endif
+    <!-- Formulaire -->
+    <div class="bg-white rounded-lg shadow-sm border p-6">
+        <form action="{{ route('equipment.store') }}" method="POST">
+            @csrf
 
-    <!-- Tâches à venir -->
-    @if(isset($upcomingActions) && count($upcomingActions) > 0)
-        <div class="mb-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <h3 class="text-lg font-medium text-yellow-900 mb-3">Actions à prévoir</h3>
-            <div class="space-y-2">
-                @foreach($upcomingActions as $action)
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <div class="font-medium text-yellow-900">{{ $action['title'] }}</div>
-                            <div class="text-sm text-yellow-700">
-                                Échéance: {{ $action['due_date']->format('d/m/Y') }}
-                                @if($action['due_date']->isPast())
-                                    <span class="text-red-600 font-medium">- En retard</span>
-                                @endif
-                            </div>
-                        </div>
-                        @if(isset($action['url']))
-                            <a href="{{ $action['url'] }}"
-                               class="text-yellow-600 hover:text-yellow-800 font-medium">
-                                Planifier →
-                            </a>
-                        @endif
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    @endif
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Contenu principal -->
-        <div class="lg:col-span-2 space-y-6">
-            <!-- Informations générales -->
-            <div class="bg-white rounded-lg shadow-sm border p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Informations générales</h3>
-                <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Type d'équipement</dt>
-                        <dd class="text-sm text-gray-900">{{ $equipment->equipment_type }}</dd>
-                    </div>
-                    @if($equipment->brand)
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Marque</dt>
-                            <dd class="text-sm text-gray-900">{{ $equipment->brand }}</dd>
-                        </div>
-                    @endif
-                    @if($equipment->purchase_date)
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Date d'achat</dt>
-                            <dd class="text-sm text-gray-900">{{ $equipment->purchase_date->format('d/m/Y') }}</dd>
-                        </div>
-                    @endif
-                    @if($equipment->installation_date)
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Date d'installation</dt>
-                            <dd class="text-sm text-gray-900">{{ $equipment->installation_date->format('d/m/Y') }}</dd>
-                        </div>
-                    @endif
-                    <div>
-                        <dt class="text-sm font-medium text-gray-500">Statut</dt>
-                        <dd>
-                            <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full
-                                {{ $equipment->status === 'active' ? 'bg-green-100 text-green-800' :
-                                   ($equipment->status === 'maintenance' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
-                                {{ ucfirst($equipment->status) }}
-                            </span>
-                        </dd>
-                    </div>
-                    @if($equipment->applicable_norms)
-                        <div>
-                            <dt class="text-sm font-medium text-gray-500">Normes applicables</dt>
-                            <dd class="text-sm text-gray-900">
-                                @foreach($equipment->applicable_norms as $norm)
-                                    <span class="inline-block bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs mr-1">{{ $norm }}</span>
-                                @endforeach
-                            </dd>
-                        </div>
-                    @endif
-                </dl>
-            </div>
-
-            <!-- Certifications -->
-            @if($equipment->certifications->count() > 0)
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Certifications</h3>
-                    <div class="space-y-3">
-                        @foreach($equipment->certifications as $cert)
-                            <div class="border rounded p-3">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <div class="font-medium text-gray-900">{{ $cert->certification_type_label }}</div>
-                                        <div class="text-sm text-gray-600">{{ $cert->norm_reference }}</div>
-                                        @if($cert->certificate_number)
-                                            <div class="text-xs text-gray-500">N° {{ $cert->certificate_number }}</div>
-                                        @endif
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full
-                                            {{ $cert->is_valid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                            {{ $cert->status }}
-                                        </span>
-                                        @if($cert->expiry_date)
-                                            <div class="text-xs text-gray-500 mt-1">
-                                                Expire le {{ $cert->expiry_date->format('d/m/Y') }}
-                                            </div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Installation -->
+                <div class="md:col-span-2">
+                    <label for="playground_id" class="block text-sm font-medium text-gray-700 mb-1">
+                        Installation <span class="text-red-500">*</span>
+                    </label>
+                    <select name="playground_id" id="playground_id" class="w-full rounded-md border-gray-300 @error('playground_id') border-red-500 @enderror" required>
+                        <option value="">Sélectionner une installation</option>
+                        @foreach($playgrounds as $playgroundOption)
+                            <option value="{{ $playgroundOption->id }}"
+                                {{ (old('playground_id', $playground?->id) == $playgroundOption->id) ? 'selected' : '' }}>
+                                {{ $playgroundOption->name }} - {{ $playgroundOption->city }}
+                            </option>
                         @endforeach
-                    </div>
+                    </select>
+                    @error('playground_id')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
-            @endif
 
-            <!-- Inspections récentes (pour manèges) -->
-            @if($equipment->equipment_category === 'amusement_ride' && $equipment->amusementRideInspections->count() > 0)
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Inspections EN 13814</h3>
-                    <div class="space-y-3">
-                        @foreach($equipment->amusementRideInspections->take(5) as $inspection)
-                            <div class="border rounded p-3">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <div class="font-medium text-gray-900">{{ $inspection->inspection_type_label }}</div>
-                                        <div class="text-sm text-gray-600">{{ $inspection->inspector_name }}</div>
-                                        <div class="text-xs text-gray-500">{{ $inspection->inspection_date->format('d/m/Y') }}</div>
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-{{ $inspection->result_color }}-100 text-{{ $inspection->result_color }}-800">
-                                            {{ $inspection->overall_result_label }}
-                                        </span>
-                                        @if($inspection->operation_authorized)
-                                            <div class="text-xs text-green-600 mt-1">✓ Exploitation autorisée</div>
-                                        @else
-                                            <div class="text-xs text-red-600 mt-1">✗ Exploitation interdite</div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                <!-- Code de référence -->
+                <div>
+                    <label for="reference_code" class="block text-sm font-medium text-gray-700 mb-1">
+                        Code de référence <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="reference_code" id="reference_code"
+                           value="{{ old('reference_code') }}"
+                           class="w-full rounded-md border-gray-300 @error('reference_code') border-red-500 @enderror"
+                           placeholder="Ex: JEU-001" required>
+                    @error('reference_code')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
-            @endif
 
-            <!-- Tests électriques récents -->
-            @if($equipment->equipment_category === 'electrical_system' && $equipment->electricalTests->count() > 0)
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Tests électriques EN 60335</h3>
-                    <div class="space-y-3">
-                        @foreach($equipment->electricalTests->take(5) as $test)
-                            <div class="border rounded p-3">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <div class="font-medium text-gray-900">{{ $test->test_type_label }}</div>
-                                        <div class="text-sm text-gray-600">{{ $test->tester_name }}</div>
-                                        <div class="text-xs text-gray-500">{{ $test->test_date->format('d/m/Y') }}</div>
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-{{ $test->result_color }}-100 text-{{ $test->result_color }}-800">
-                                            {{ $test->test_result_label }}
-                                        </span>
-                                        @if($test->safe_to_use)
-                                            <div class="text-xs text-green-600 mt-1">✓ Sûr à utiliser</div>
-                                        @else
-                                            <div class="text-xs text-red-600 mt-1">⚠ Non sûr</div>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                <!-- Catégorie d'équipement -->
+                <div>
+                    <label for="equipment_category" class="block text-sm font-medium text-gray-700 mb-1">
+                        Catégorie <span class="text-red-500">*</span>
+                    </label>
+                    <select name="equipment_category" id="equipment_category"
+                            class="w-full rounded-md border-gray-300 @error('equipment_category') border-red-500 @enderror" required>
+                        <option value="">Sélectionner une catégorie</option>
+                        <option value="playground_equipment" {{ old('equipment_category') === 'playground_equipment' ? 'selected' : '' }}>
+                            Équipement aire de jeux (EN 1176)
+                        </option>
+                        <option value="amusement_ride" {{ old('equipment_category') === 'amusement_ride' ? 'selected' : '' }}>
+                            Manège/Attraction (EN 13814)
+                        </option>
+                        <option value="electrical_system" {{ old('equipment_category') === 'electrical_system' ? 'selected' : '' }}>
+                            Système électrique (EN 60335)
+                        </option>
+                        <option value="infrastructure" {{ old('equipment_category') === 'infrastructure' ? 'selected' : '' }}>
+                            Infrastructure
+                        </option>
+                        <option value="safety_equipment" {{ old('equipment_category') === 'safety_equipment' ? 'selected' : '' }}>
+                            Équipement de sécurité
+                        </option>
+                    </select>
+                    @error('equipment_category')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
-            @endif
 
-            <!-- Maintenances récentes -->
-            @if($equipment->maintenanceChecks->count() > 0)
-                <div class="bg-white rounded-lg shadow-sm border p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Maintenances</h3>
-                    <div class="space-y-3">
-                        @foreach($equipment->maintenanceChecks->take(5) as $maintenance)
-                            <div class="border rounded p-3">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <div class="font-medium text-gray-900">{{ $maintenance->check_type_label }}</div>
-                                        @if($maintenance->inspector_name)
-                                            <div class="text-sm text-gray-600">{{ $maintenance->inspector_name }}</div>
-                                        @endif
-                                        <div class="text-xs text-gray-500">
-                                            @if($maintenance->completed_date)
-                                                Terminé le {{ $maintenance->completed_date->format('d/m/Y') }}
-                                            @else
-                                                Prévu le {{ $maintenance->scheduled_date->format('d/m/Y') }}
-                                            @endif
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <span class="inline-flex px-2 py-1 text-xs font-medium rounded-full bg-{{ $maintenance->status_color }}-100 text-{{ $maintenance->status_color }}-800">
-                                            {{ $maintenance->status_label }}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                <!-- Type d'équipement -->
+                <div>
+                    <label for="equipment_type" class="block text-sm font-medium text-gray-700 mb-1">
+                        Type d'équipement <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="equipment_type" id="equipment_type"
+                           value="{{ old('equipment_type') }}"
+                           class="w-full rounded-md border-gray-300 @error('equipment_type') border-red-500 @enderror"
+                           placeholder="Ex: Balançoire, Toboggan, Manège..." required>
+                    @error('equipment_type')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
-            @endif
-        </div>
 
-        <!-- Panneau latéral -->
-        <div class="space-y-6">
-            <!-- Statut technique -->
-            <div class="bg-white rounded-lg shadow-sm border p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Statut technique</h3>
-
-                @if($equipment->equipment_category === 'electrical_system')
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Dernier test électrique</span>
-                            <span class="text-sm {{ $equipment->electrical_test_date && $equipment->electrical_test_date->addYear()->isFuture() ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $equipment->electrical_test_date ? $equipment->electrical_test_date->format('d/m/Y') : 'Jamais' }}
-                            </span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Classe de protection</span>
-                            <span class="text-sm text-gray-900">{{ $equipment->protection_class ?? 'Non renseigné' }}</span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Indice IP</span>
-                            <span class="text-sm text-gray-900">{{ $equipment->ip_rating ?? 'Non renseigné' }}</span>
-                        </div>
-                    </div>
-                @endif
-
-                @if($equipment->equipment_category === 'amusement_ride')
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Dernière inspection</span>
-                            <span class="text-sm {{ $equipment->last_inspection_date && $equipment->last_inspection_date->addMonth()->isFuture() ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $equipment->last_inspection_date ? $equipment->last_inspection_date->format('d/m/Y') : 'Jamais' }}
-                            </span>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Exploitation autorisée</span>
-                            <span class="text-sm {{ $equipment->operation_authorized ? 'text-green-600' : 'text-red-600' }}">
-                                {{ $equipment->operation_authorized ? 'Oui' : 'Non' }}
-                            </span>
-                        </div>
-                        @if($equipment->max_passengers)
-                            <div class="flex justify-between items-center">
-                                <span class="text-sm text-gray-600">Passagers max</span>
-                                <span class="text-sm text-gray-900">{{ $equipment->max_passengers }}</span>
-                            </div>
-                        @endif
-                    </div>
-                @endif
-
-                @if($equipment->height)
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Hauteur</span>
-                        <span class="text-sm text-gray-900">{{ $equipment->height }} m</span>
-                    </div>
-                @endif
-            </div>
-
-            <!-- Actions rapides -->
-            <div class="bg-white rounded-lg shadow-sm border p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-4">Actions</h3>
-                <div class="space-y-3">
-                    <a href="{{ route('risk-analysis.equipment', $equipment) }}"
-                       class="block w-full text-center px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700">
-                        Analyser les risques
-                    </a>
-
-                    @if($equipment->equipment_category === 'amusement_ride')
-                        <a href="{{ route('inspections.create.equipment', $equipment) }}"
-                           class="block w-full text-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700">
-                            Nouvelle inspection
-                        </a>
-                    @endif
-
-                    @if($equipment->equipment_category === 'electrical_system')
-                        <a href="{{ route('electrical-tests.create.equipment', $equipment) }}"
-                           class="block w-full text-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700">
-                            Nouveau test électrique
-                        </a>
-                    @endif
-
-                    <a href="{{ route('equipment.edit', $equipment) }}"
-                       class="block w-full text-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-                        Modifier
-                    </a>
-
-                    <button onclick="if(confirm('Êtes-vous sûr de vouloir supprimer cet équipement ?')) { document.getElementById('delete-form').submit(); }"
-                            class="block w-full text-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
-                        Supprimer
-                    </button>
-                    <form id="delete-form" action="{{ route('equipment.destroy', $equipment) }}" method="POST" class="hidden">
-                        @csrf
-                        @method('DELETE')
-                    </form>
+                <!-- Marque -->
+                <div>
+                    <label for="brand" class="block text-sm font-medium text-gray-700 mb-1">Marque</label>
+                    <input type="text" name="brand" id="brand"
+                           value="{{ old('brand') }}"
+                           class="w-full rounded-md border-gray-300 @error('brand') border-red-500 @enderror"
+                           placeholder="Ex: KOMPAN, Wicksteed...">
+                    @error('brand')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
             </div>
-        </div>
+
+            <!-- Dates -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                    <label for="purchase_date" class="block text-sm font-medium text-gray-700 mb-1">Date d'achat</label>
+                    <input type="date" name="purchase_date" id="purchase_date"
+                           value="{{ old('purchase_date') }}"
+                           class="w-full rounded-md border-gray-300 @error('purchase_date') border-red-500 @enderror">
+                    @error('purchase_date')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="installation_date" class="block text-sm font-medium text-gray-700 mb-1">Date d'installation</label>
+                    <input type="date" name="installation_date" id="installation_date"
+                           value="{{ old('installation_date') }}"
+                           class="w-full rounded-md border-gray-300 @error('installation_date') border-red-500 @enderror">
+                    @error('installation_date')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Détails fabricant/fournisseur -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <div>
+                    <label for="manufacturer_details" class="block text-sm font-medium text-gray-700 mb-1">Coordonnées fabricant</label>
+                    <textarea name="manufacturer_details" id="manufacturer_details" rows="3"
+                              class="w-full rounded-md border-gray-300 @error('manufacturer_details') border-red-500 @enderror"
+                              placeholder="Nom, adresse, contact...">{{ old('manufacturer_details') }}</textarea>
+                    @error('manufacturer_details')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="supplier_details" class="block text-sm font-medium text-gray-700 mb-1">Coordonnées fournisseur</label>
+                    <textarea name="supplier_details" id="supplier_details" rows="3"
+                              class="w-full rounded-md border-gray-300 @error('supplier_details') border-red-500 @enderror"
+                              placeholder="Nom, adresse, contact...">{{ old('supplier_details') }}</textarea>
+                    @error('supplier_details')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Caractéristiques techniques (conditionnelles selon la catégorie) -->
+            <div id="technical-specs" class="mt-6 space-y-6">
+                <!-- Caractéristiques générales -->
+                <div class="general-specs">
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">Caractéristiques techniques</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label for="height" class="block text-sm font-medium text-gray-700 mb-1">Hauteur (m)</label>
+                            <input type="number" name="height" id="height" step="0.01" min="0"
+                                   value="{{ old('height') }}"
+                                   class="w-full rounded-md border-gray-300 @error('height') border-red-500 @enderror">
+                            @error('height')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="max_passengers" class="block text-sm font-medium text-gray-700 mb-1">Passagers max</label>
+                            <input type="number" name="max_passengers" id="max_passengers" min="0"
+                                   value="{{ old('max_passengers') }}"
+                                   class="w-full rounded-md border-gray-300 @error('max_passengers') border-red-500 @enderror">
+                            @error('max_passengers')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spécifications manèges -->
+                <div id="amusement-specs" class="hidden">
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">Spécifications manège (EN 13814)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="max_speed" class="block text-sm font-medium text-gray-700 mb-1">Vitesse max (km/h)</label>
+                            <input type="number" name="max_speed" id="max_speed" step="0.01" min="0"
+                                   value="{{ old('max_speed') }}"
+                                   class="w-full rounded-md border-gray-300 @error('max_speed') border-red-500 @enderror">
+                            @error('max_speed')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="max_acceleration" class="block text-sm font-medium text-gray-700 mb-1">Accélération max (g)</label>
+                            <input type="number" name="max_acceleration" id="max_acceleration" step="0.01" min="0"
+                                   value="{{ old('max_acceleration') }}"
+                                   class="w-full rounded-md border-gray-300 @error('max_acceleration') border-red-500 @enderror">
+                            @error('max_acceleration')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spécifications électriques -->
+                <div id="electrical-specs" class="hidden">
+                    <h4 class="text-lg font-medium text-gray-900 mb-4">Spécifications électriques (EN 60335)</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="voltage" class="block text-sm font-medium text-gray-700 mb-1">Tension (V)</label>
+                            <input type="number" name="voltage" id="voltage" step="0.01" min="0"
+                                   value="{{ old('voltage') }}"
+                                   class="w-full rounded-md border-gray-300 @error('voltage') border-red-500 @enderror">
+                            @error('voltage')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="current" class="block text-sm font-medium text-gray-700 mb-1">Courant (A)</label>
+                            <input type="number" name="current" id="current" step="0.01" min="0"
+                                   value="{{ old('current') }}"
+                                   class="w-full rounded-md border-gray-300 @error('current') border-red-500 @enderror">
+                            @error('current')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="protection_class" class="block text-sm font-medium text-gray-700 mb-1">Classe de protection</label>
+                            <select name="protection_class" id="protection_class"
+                                    class="w-full rounded-md border-gray-300 @error('protection_class') border-red-500 @enderror">
+                                <option value="">Sélectionner</option>
+                                <option value="I" {{ old('protection_class') === 'I' ? 'selected' : '' }}>Classe I</option>
+                                <option value="II" {{ old('protection_class') === 'II' ? 'selected' : '' }}>Classe II</option>
+                                <option value="III" {{ old('protection_class') === 'III' ? 'selected' : '' }}>Classe III</option>
+                            </select>
+                            @error('protection_class')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label for="ip_rating" class="block text-sm font-medium text-gray-700 mb-1">Indice IP</label>
+                            <input type="text" name="ip_rating" id="ip_rating"
+                                   value="{{ old('ip_rating') }}"
+                                   class="w-full rounded-md border-gray-300 @error('ip_rating') border-red-500 @enderror"
+                                   placeholder="Ex: IP65">
+                            @error('ip_rating')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="mt-8 flex justify-end gap-3">
+                <a href="{{ route('equipment.index') }}"
+                   class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                    Annuler
+                </a>
+                <button type="submit"
+                        class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    Créer l'équipement
+                </button>
+            </div>
+        </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const categorySelect = document.getElementById('equipment_category');
+    const amusementSpecs = document.getElementById('amusement-specs');
+    const electricalSpecs = document.getElementById('electrical-specs');
+
+    function toggleSpecs() {
+        const category = categorySelect.value;
+
+        // Masquer tous les specs
+        amusementSpecs.classList.add('hidden');
+        electricalSpecs.classList.add('hidden');
+
+        // Afficher les specs appropriés
+        if (category === 'amusement_ride') {
+            amusementSpecs.classList.remove('hidden');
+        } else if (category === 'electrical_system') {
+            electricalSpecs.classList.remove('hidden');
+        }
+    }
+
+    categorySelect.addEventListener('change', toggleSpecs);
+    toggleSpecs(); // Exécuter au chargement
+});
+</script>
 @endsection

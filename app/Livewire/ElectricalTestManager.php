@@ -9,7 +9,7 @@ use Livewire\Component;
 
 class ElectricalTestManager extends Component
 {
-    public ?Equipment $equipment       = null;
+    public Equipment $equipment;
     public ?ElectricalSafetyTest $test = null;
     public $mode                       = 'create'; // create, edit, view
 
@@ -89,34 +89,29 @@ class ElectricalTestManager extends Component
         ],
     ];
 
-    public function mount(?Equipment $equipment = null, ?ElectricalSafetyTest $test = null)
+    public function mount(Equipment $equipment, ?ElectricalSafetyTest $test = null)
     {
-        if ($test) {
-            $this->test      = $test;
-            $this->equipment = $test->equipment;
-            $this->mode      = 'edit';
-            $this->loadTestData();
-        } elseif ($equipment) {
-            $this->equipment = $equipment;
-            $this->mode      = 'create';
-            $this->initializeForEquipment();
-        }
+        $this->equipment = $equipment;
 
-        $this->test_date = now()->format('Y-m-d');
-        $this->calculateNextTestDate();
+        if ($test) {
+            $this->test = $test;
+            $this->mode = 'edit';
+            $this->loadTestData();
+        } else {
+            $this->mode      = 'create';
+            $this->test_date = now()->format('Y-m-d');
+            $this->calculateNextTestDate();
+            $this->initializeSpecializedTests();
+        }
     }
 
-    protected function loadTestData()
+    public function loadTestData()
     {
-        if (! $this->test) {
-            return;
-        }
-
         $this->test_type            = $this->test->test_type;
         $this->tester_name          = $this->test->tester_name;
         $this->tester_qualification = $this->test->tester_qualification;
         $this->test_date            = $this->test->test_date->format('Y-m-d');
-        $this->test_equipment_used  = $this->test->test_equipment_used ?? '';
+        $this->test_equipment_used  = $this->test->test_equipment_used;
 
         $this->insulation_resistance = $this->test->insulation_resistance;
         $this->earth_resistance      = $this->test->earth_resistance;
@@ -129,22 +124,24 @@ class ElectricalTestManager extends Component
 
         $this->ambient_temperature = $this->test->ambient_temperature;
         $this->relative_humidity   = $this->test->relative_humidity;
-        $this->test_conditions     = $this->test->test_conditions ?? '';
+        $this->test_conditions     = $this->test->test_conditions;
+
+        // Charger les tests spécialisés depuis JSON ou initialiser
+        $savedSpecializedTests = json_decode($this->test->observations, true);
+        if (isset($savedSpecializedTests['specialized_tests'])) {
+            $this->specialized_tests = array_merge($this->specialized_tests, $savedSpecializedTests['specialized_tests']);
+        }
 
         $this->test_result     = $this->test->test_result;
-        $this->observations    = $this->test->observations ?? '';
-        $this->defects_found   = $this->test->defects_found ?? '';
-        $this->recommendations = $this->test->recommendations ?? '';
-        $this->next_test_date  = $this->test->next_test_date?->format('Y-m-d') ?? '';
+        $this->observations    = $this->test->observations;
+        $this->defects_found   = $this->test->defects_found;
+        $this->recommendations = $this->test->recommendations;
+        $this->next_test_date  = $this->test->next_test_date?->format('Y-m-d');
         $this->safe_to_use     = $this->test->safe_to_use;
     }
 
-    protected function initializeForEquipment()
+    public function initializeSpecializedTests()
     {
-        if (! $this->equipment) {
-            return;
-        }
-
         // Adapter les tests selon le type d'équipement électrique
         $equipmentType = $this->equipment->equipment_type;
 
@@ -179,12 +176,14 @@ class ElectricalTestManager extends Component
             default => now()->addYear()
         };
 
-        $this->next_test_date = $nextDate?->format('Y-m-d') ?? '';
+        $this->next_test_date = $nextDate?->format('Y-m-d');
     }
 
     public function performInsulationTest()
     {
-                                               // Simuler un test d'isolement
+        // Simuler un test d'isolement
+        // En réalité, ceci serait connecté à un équipement de test
+
         $baseResistance = 2.5;                 // MΩ valeur de base
         $variation      = rand(-20, 20) / 100; // ±20% de variation
 
@@ -258,7 +257,7 @@ class ElectricalTestManager extends Component
     public function performVoltageTest()
     {
         // Simuler des mesures de tension
-        $nominalVoltage = $this->equipment?->voltage ?? 230;
+        $nominalVoltage = $this->equipment->voltage ?? 230;
 
         $this->voltage_measurements = [
             'l1_n'  => round($nominalVoltage + rand(-10, 10), 1),
@@ -288,7 +287,7 @@ class ElectricalTestManager extends Component
 
     public function performLoadTest()
     {
-        $nominalCurrent          = $this->equipment?->current ?? 10;
+        $nominalCurrent          = $this->equipment->current ?? 10;
         $this->load_test_current = round($nominalCurrent * 0.9, 2);
 
         // Vérifier la conformité
@@ -370,7 +369,10 @@ class ElectricalTestManager extends Component
             'relative_humidity'     => $this->relative_humidity,
             'test_conditions'       => $this->test_conditions,
             'test_result'           => $this->test_result,
-            'observations'          => $this->observations,
+            'observations'          => json_encode([
+                'main_observations' => $this->observations,
+                'specialized_tests' => $this->specialized_tests,
+            ]),
             'defects_found'         => $this->defects_found,
             'recommendations'       => $this->recommendations,
             'next_test_date'        => $this->next_test_date,
@@ -386,12 +388,10 @@ class ElectricalTestManager extends Component
         }
 
         // Mettre à jour la date du dernier test sur l'équipement
-        if ($this->equipment) {
-            $this->equipment->update([
-                'electrical_test_date' => $this->test_date,
-                'status'               => $this->safe_to_use ? 'active' : 'out_of_service',
-            ]);
-        }
+        $this->equipment->update([
+            'electrical_test_date' => $this->test_date,
+            'status'               => $this->safe_to_use ? 'active' : 'out_of_service',
+        ]);
 
         return redirect()->route('equipment.show', $this->equipment);
     }
@@ -399,6 +399,8 @@ class ElectricalTestManager extends Component
     public function generateTestReport()
     {
         // Générer un rapport PDF du test
+        // En production, ceci utiliserait une librairie comme DomPDF
+
         $reportData = [
             'equipment'    => $this->equipment,
             'test_data'    => $this->test ?? (object) [

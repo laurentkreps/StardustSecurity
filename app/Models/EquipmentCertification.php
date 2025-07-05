@@ -1,5 +1,10 @@
 <?php
-// app/Models/EquipmentCertification.php
+
+// =============================================================================
+// 3. app/Models/EquipmentCertification.php - FICHIER RENOMMÉ ET CORRIGÉ
+// =============================================================================
+// 🔧 RENOMMER: EquipementCertification.php -> EquipmentCertification.php
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -8,16 +13,25 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class EquipmentCertification extends Model
 {
+    // 🔧 FILLABLE CORRIGÉ - 'technical_data' -> 'notes' selon migration
     protected $fillable = [
-        'equipment_id', 'certification_type', 'norm_reference', 'certificate_number',
-        'issuing_body', 'issue_date', 'expiry_date', 'status', 'scope',
-        'restrictions', 'document_path', 'technical_data',
+        'equipment_id',
+        'certification_type',
+        'norm_reference',
+        'certificate_number',
+        'issuing_body',
+        'issue_date',
+        'expiry_date',
+        'status',
+        'scope',
+        'restrictions',
+        'document_path',
+        'notes', // 🔧 CORRIGÉ: était 'technical_data' dans l'original
     ];
 
     protected $casts = [
-        'issue_date'     => 'date',
-        'expiry_date'    => 'date',
-        'technical_data' => 'array',
+        'issue_date'  => 'date',
+        'expiry_date' => 'date',
     ];
 
     public function equipment(): BelongsTo
@@ -32,11 +46,10 @@ class EquipmentCertification extends Model
                 'ce_marking'             => 'Marquage CE',
                 'declaration_conformity' => 'Déclaration de conformité',
                 'type_examination'       => 'Examen de type',
-                'production_quality'     => 'Assurance qualité production',
                 'electrical_safety'      => 'Sécurité électrique',
-                'structural_calculation' => 'Calculs de structure',
                 'installation_approval'  => 'Agrément d\'installation',
                 'operational_permit'     => 'Permis d\'exploitation',
+                'other'                  => 'Autre',
                 default                  => $this->certification_type
             }
         );

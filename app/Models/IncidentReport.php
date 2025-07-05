@@ -1,10 +1,8 @@
 <?php
 
 // =============================================================================
-// MODÈLE ELOQUENT CORRIGÉ: IncidentReport.php
+// 1. app/Models/IncidentReport.php - CORRIGÉ avec JSON natif
 // =============================================================================
-
-// Avec génération automatique du numéro d'incident
 
 namespace App\Models;
 
@@ -27,6 +25,7 @@ class IncidentReport extends Model
         'requires_equipment_shutdown', 'equipment_restart_date',
     ];
 
+    // 🔧 CASTS CORRIGÉS - JSON natif au lieu d'accesseurs manuels
     protected $casts = [
         'incident_date'               => 'datetime',
         'authority_report_date'       => 'date',
@@ -37,6 +36,11 @@ class IncidentReport extends Model
         'medical_assistance_required' => 'boolean',
         'requires_equipment_shutdown' => 'boolean',
         'temperature'                 => 'decimal:1',
+        // 🆕 JSON NATIF - Remplace les accesseurs manuels
+        'persons_involved'            => 'array',
+        'witnesses'                   => 'array',
+        'corrective_actions'          => 'array',
+        'attachments'                 => 'array',
     ];
 
     // Boot method pour générer automatiquement le numéro d'incident
@@ -77,44 +81,279 @@ class IncidentReport extends Model
         return $this->belongsTo(Equipment::class);
     }
 
-    // Accesseurs pour JSON fields (stockés comme text)
-    public function getPersonsInvolvedAttribute($value)
+    // 🆕 ACCESSEURS AJOUTÉS pour améliorer l'API
+    public function getSeverityLabelAttribute(): string
     {
-        return $value ? json_decode($value, true) : null;
+        return match ($this->severity) {
+            'minor' => 'Mineur',
+            'moderate' => 'Modéré',
+            'serious' => 'Grave',
+            'critical' => 'Critique',
+            default => 'Non défini'
+        };
     }
 
-    public function setPersonsInvolvedAttribute($value)
+    public function getSeverityColorAttribute(): string
     {
-        $this->attributes['persons_involved'] = $value ? json_encode($value) : null;
+        return match ($this->severity) {
+            'minor' => 'green',
+            'moderate' => 'yellow',
+            'serious' => 'orange',
+            'critical' => 'red',
+            default => 'gray'
+        };
     }
 
-    public function getWitnessesAttribute($value)
+    public function getIncidentTypeLabelAttribute(): string
     {
-        return $value ? json_decode($value, true) : null;
+        return match ($this->incident_type) {
+            'accident' => 'Accident',
+            'serious_incident' => 'Incident grave',
+            'damage' => 'Dégâts matériels',
+            'near_miss' => 'Presque accident',
+            'vandalism' => 'Vandalisme',
+            'other' => 'Autre',
+            default => 'Non défini'
+        };
     }
 
-    public function setWitnessesAttribute($value)
+    public function getStatusLabelAttribute(): string
     {
-        $this->attributes['witnesses'] = $value ? json_encode($value) : null;
+        return match ($this->status) {
+            'reported' => 'Signalé',
+            'investigating' => 'En cours d\'investigation',
+            'resolved' => 'Résolu',
+            'closed' => 'Clôturé',
+            default => 'Statut inconnu'
+        };
     }
 
-    public function getCorrectiveActionsAttribute($value)
+    public function getStatusColorAttribute(): string
     {
-        return $value ? json_decode($value, true) : null;
+        return match ($this->status) {
+            'reported' => 'blue',
+            'investigating' => 'orange',
+            'resolved' => 'green',
+            'closed' => 'gray',
+            default => 'gray'
+        };
     }
 
-    public function setCorrectiveActionsAttribute($value)
+    // 🆕 MÉTHODES UTILITAIRES AJOUTÉES
+    public function isOpen(): bool
     {
-        $this->attributes['corrective_actions'] = $value ? json_encode($value) : null;
+        return in_array($this->status, ['reported', 'investigating']);
     }
 
-    public function getAttachmentsAttribute($value)
+    public function isClosed(): bool
     {
-        return $value ? json_decode($value, true) : null;
+        return $this->status === 'closed';
     }
 
-    public function setAttachmentsAttribute($value)
+    public function requiresAuthorityReporting(): bool
     {
-        $this->attributes['attachments'] = $value ? json_encode($value) : null;
+        // Les incidents graves et critiques nécessitent un signalement
+        return in_array($this->severity, ['serious', 'critical']) ||
+        $this->medical_assistance_required ||
+        $this->requires_equipment_shutdown;
+    }
+
+    public function hasPersonsInvolved(): bool
+    {
+        return ! empty($this->persons_involved);
+    }
+
+    public function hasWitnesses(): bool
+    {
+        return ! empty($this->witnesses);
+    }
+
+    public function hasAttachments(): bool
+    {
+        return ! empty($this->attachments);
+    }
+
+    public function getPersonsInvolvedCount(): int
+    {
+        return is_array($this->persons_involved) ? count($this->persons_involved) : 0;
+    }
+
+    public function getWitnessesCount(): int
+    {
+        return is_array($this->witnesses) ? count($this->witnesses) : 0;
+    }
+
+    public function getDaysOpen(): int
+    {
+        if ($this->isClosed() && $this->closure_date) {
+            return $this->incident_date->diffInDays($this->closure_date);
+        }
+
+        return $this->incident_date->diffInDays(now());
+    }
+
+    // 🆕 MÉTHODES POUR GÉRER LES TABLEAUX JSON
+    public function addPersonInvolved(array $person): void
+    {
+        $persons   = $this->persons_involved ?? [];
+        $persons[] = array_merge([
+            'name'               => null,
+            'age'                => null,
+            'contact'            => null,
+            'role'               => null,
+            'injury_description' => null,
+        ], $person);
+
+        $this->persons_involved = $persons;
+        $this->save();
+    }
+
+    public function addWitness(array $witness): void
+    {
+        $witnesses   = $this->witnesses ?? [];
+        $witnesses[] = array_merge([
+            'name'      => null,
+            'contact'   => null,
+            'statement' => null,
+        ], $witness);
+
+        $this->witnesses = $witnesses;
+        $this->save();
+    }
+
+    public function addCorrectiveAction(array $action): void
+    {
+        $actions   = $this->corrective_actions ?? [];
+        $actions[] = array_merge([
+            'action'          => null,
+            'responsible'     => null,
+            'deadline'        => null,
+            'status'          => 'planned',
+            'completion_date' => null,
+            'notes'           => null,
+        ], $action);
+
+        $this->corrective_actions = $actions;
+        $this->save();
+    }
+
+    public function addAttachment(string $path, string $type, ?string $description = null): void
+    {
+        $attachments   = $this->attachments ?? [];
+        $attachments[] = [
+            'path'        => $path,
+            'type'        => $type, // 'photo', 'document', 'video', etc.
+            'description' => $description,
+            'uploaded_at' => now()->toISOString(),
+        ];
+
+        $this->attachments = $attachments;
+        $this->save();
+    }
+
+    // Scopes
+    public function scopeOpen($query)
+    {
+        return $query->whereIn('status', ['reported', 'investigating']);
+    }
+
+    public function scopeClosed($query)
+    {
+        return $query->where('status', 'closed');
+    }
+
+    public function scopeBySeverity($query, string $severity)
+    {
+        return $query->where('severity', $severity);
+    }
+
+    public function scopeRequiringAuthorityReport($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereIn('severity', ['serious', 'critical'])
+                ->orWhere('medical_assistance_required', true)
+                ->orWhere('requires_equipment_shutdown', true);
+        });
+    }
+
+    public function scopeNotReportedToAuthorities($query)
+    {
+        return $query->where('reported_to_authorities', false);
+    }
+
+    public function scopeWithEquipmentShutdown($query)
+    {
+        return $query->where('requires_equipment_shutdown', true);
+    }
+
+    // Validation rules
+    public static function validationRules(): array
+    {
+        return [
+            'playground_id'               => 'required|exists:playgrounds,id',
+            'equipment_id'                => 'nullable|exists:equipment,id',
+            'incident_date'               => 'required|date|before_or_equal:now',
+            'incident_type'               => 'required|in:accident,serious_incident,damage,near_miss,vandalism,other',
+            'severity'                    => 'required|in:minor,moderate,serious,critical',
+            'description'                 => 'required|string',
+            'circumstances'               => 'nullable|string',
+            'persons_involved'            => 'nullable|array',
+            'witnesses'                   => 'nullable|array',
+            'injuries_description'        => 'nullable|string',
+            'medical_assistance_required' => 'boolean',
+            'immediate_actions'           => 'nullable|string',
+            'preventive_measures'         => 'nullable|string',
+            'reported_to_authorities'     => 'boolean',
+            'authority_report_date'       => 'nullable|date|after_or_equal:incident_date',
+            'authority_reference'         => 'nullable|string',
+            'reporter_name'               => 'required|string|max:255',
+            'reporter_contact'            => 'nullable|string|max:255',
+            'reporter_function'           => 'nullable|string|max:255',
+            'status'                      => 'required|in:reported,investigating,resolved,closed',
+            'investigation_notes'         => 'nullable|string',
+            'corrective_actions'          => 'nullable|array',
+            'closure_date'                => 'nullable|date|after_or_equal:incident_date',
+            'closed_by'                   => 'nullable|string|max:255',
+            'lessons_learned'             => 'nullable|string',
+            'attachments'                 => 'nullable|array',
+            'weather_conditions'          => 'nullable|string|max:100',
+            'visitor_count_estimate'      => 'nullable|integer|min:0',
+            'incident_time'               => 'nullable|date_format:H:i',
+            'temperature'                 => 'nullable|numeric',
+            'requires_equipment_shutdown' => 'boolean',
+            'equipment_restart_date'      => 'nullable|date|after_or_equal:incident_date',
+        ];
     }
 }
+
+// =============================================================================
+// 2. INSTRUCTIONS POUR DÉPLACER ElectricalTestManager
+// =============================================================================
+
+/*
+🔧 ACTIONS MANUELLES REQUISES :
+
+1. DÉPLACER LE FICHIER :
+   mv app/Models/ElectricalTestManager.php app/Livewire/ElectricalTestManager.php
+
+2. METTRE À JOUR LE NAMESPACE dans le fichier déplacé :
+   Changer : namespace App\Models;
+   Vers :    namespace App\Livewire;
+
+3. VÉRIFIER LES IMPORTS dans les autres fichiers :
+   - Si des contrôleurs ou vues importent App\Models\ElectricalTestManager
+   - Les changer vers App\Livewire\ElectricalTestManager
+
+4. SUPPRIMER TOUTE RÉFÉRENCE à ElectricalTestManager comme modèle :
+   - Dans les relations Eloquent
+   - Dans les seeders
+   - Dans les tests
+
+5. VÉRIFIER que c'est bien un composant Livewire :
+   - Doit extends Component (pas Model)
+   - Doit avoir une méthode render()
+   - Doit être utilisé dans des vues Blade avec <livewire:electrical-test-manager>
+
+Le fichier ElectricalTestManager que nous avons analysé est effectivement un composant
+Livewire (extends Component, méthode render(), etc.) qui était mal placé dans app/Models/.
+*/
